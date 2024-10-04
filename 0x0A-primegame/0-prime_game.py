@@ -4,31 +4,37 @@
 
 def isWinner(x, nums):
     """returns the name of the player that won the most rounds"""
-    if not nums or x < 1:
+    if x <= 0 or nums is None or len(nums) == 0:
         return None
 
-    n = max(nums)
-    sieve = [True] * (n + 1)
-    sieve[0] = sieve[1] = False
+    maria_wins = 0
+    ben_wins = 0
 
-    # Sieve of Eratosthenes
-    for i in range(2, int(n ** 0.5) + 1):
-        if sieve[i]:
-            for j in range(i * i, n + 1, i):
-                sieve[j] = False
-
-    primes = [i for i in range(n + 1) if sieve[i]]
-    players = {"Maria": 0, "Ben": 0}
-
-    for num in nums:
-        even_count = sum(1 for p in primes if p <= num and p % 2 == 0)
-        odd_count = sum(1 for p in primes if p <= num and p % 2 == 1)
-
-        if even_count > odd_count:
-            players["Maria"] += 1
+    for n in nums:
+        if n == 1:
+            ben_wins += 1
         else:
-            players["Ben"] += 1
+            if play_game(n):
+                maria_wins += 1
+            else:
+                ben_wins += 1
 
-    if players["Maria"] == players["Ben"]:
-        return None
-    return max(players, key=players.get)
+    if maria_wins > ben_wins:
+        return "Maria"
+    elif ben_wins > maria_wins:
+        return "Ben"
+    return None
+
+
+def play_game(n):
+    """simulates one round of the game"""
+    primes = [False, False] + [True] * (n - 1)
+    current_player = 0
+
+    for i in range(2, n + 1):
+        if primes[i]:
+            for j in range(i * 2, n + 1, i):
+                primes[j] = False
+            current_player = 1 - current_player
+
+    return current_player == 1
